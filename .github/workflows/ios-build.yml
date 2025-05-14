@@ -1,0 +1,33 @@
+name: Build and Upload iOS .ipa
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.6'
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Build iOS .ipa
+      run: flutter build ipa --release
+
+    - name: Upload to App Store Connect (TestFlight)
+      uses: appleboy/app-store-release-action@master
+      with:
+        api_key_base64: ${{ secrets.APP_STORE_CONNECT_KEY }}
+        api_issuer: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        api_key_id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        ipa_path: build/ios/ipa/Runner.ipa
